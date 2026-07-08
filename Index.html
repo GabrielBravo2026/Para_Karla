@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Karla</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Arial', sans-serif; }
+
+        /* PANTALLA 1: INICIO */
+        #pantalla-inicio { 
+            width: 100%; height: 100%; 
+            display: flex; justify-content: center; align-items: center; 
+            position: relative; 
+            transition: opacity 1s ease;
+        }
+        #video-bucle-fondo {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;
+        }
+        .nombre-central { 
+            color: #ff7eb9; font-size: 3rem; font-weight: bold; cursor: pointer; z-index: 10;
+            text-shadow: 0 0 20px #ff0077, 0 0 10px rgba(255, 126, 185, 0.5);
+            transition: transform 0.2s;
+        }
+        .nombre-central:active { transform: scale(0.9); }
+        .palabra { 
+            position: absolute; color: white; font-size: 1.1rem; pointer-events: none; white-space: nowrap; z-index: 5;
+            text-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 4px #ff7eb9; font-weight: bold;
+        }
+
+        /* PANTALLA 2: VIDEO PRINCIPAL */
+        #pantalla-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; }
+        #video-fondo { width: 100%; height: 100%; object-fit: cover; }
+
+        /* PANTALLA 3: LA CARTA ROMÁNTICA */
+        #pantalla-carta {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 1.5s ease; z-index: 20;
+            /* El fondo lo dejo en negro para que le pongas lo tuyo o una imagen luego */
+            background: #000; 
+        }
+        .contenido-carta {
+            width: 85%; max-width: 500px; text-align: center; color: white;
+            padding: 30px; border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 126, 185, 0.3);
+            border: 1px solid rgba(255, 126, 185, 0.2);
+            /* Un sutil degradado oscuro interno para asegurar legibilidad */
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.9), rgba(5, 5, 5, 0.95));
+        }
+        .contenido-carta p {
+            font-size: 1.25rem; line-height: 1.8; margin-bottom: 20px; color: #f0f0f0;
+        }
+        .contenido-carta .destaque {
+            color: #ff7eb9; font-weight: bold; text-shadow: 0 0 10px rgba(255, 126, 185, 0.5);
+        }
+        .contenido-carta .pregunta-final {
+            font-size: 1.8rem; font-weight: bold; color: #ff4081; margin-top: 30px;
+            text-shadow: 0 0 15px rgba(255, 64, 129, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="audio-inicial" src="musica.mp3" loop preload="auto"></audio>
+
+    <div id="pantalla-inicio">
+        <video id="video-bucle-fondo" autoplay loop muted playsinline>
+            <source src="fondo.mp4" type="video/mp4">
+        </video>
+        <div class="nombre-central" id="boton-iniciar">Karla</div>
+    </div>
+
+    <div id="pantalla-video">
+        <video id="video-fondo" playsinline>
+            <source src="video.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div id="pantalla-carta">
+        <div class="contenido-carta">
+            <p>Te quiero decir lo mucho que te amo, cuánto te amo...</p>
+            <p>Duré todo el día haciéndote este pequeño detallito para ti, espero que te guste mucho.</p>
+            <p>Te adoro, <span class="destaque">mi princesa</span>, y esta es una pequeña muestra de mi amor por ti. Lo hice con mucho esfuerzo y la verdad ya no puedo esperar más...</p>
+            <p class="pregunta-final">¿Quieres ser mi novia?</p>
+            <p style="font-size: 1.5rem; margin-top: 20px;">I love You 😍</p>
+        </div>
+    </div>
+
+    <script>
+        const palabras = [
+            "mi amada", "mi karla", "mi cielo", "mi princesa", "te quiero", 
+            "te adoro", "me encantas", "estoy enamorado de ti", "me gustas mucho", "i love You <3"
+        ];
+        
+        const elementos = [];
+        const pantallaInicio = document.getElementById('pantalla-inicio');
+        const audioInicial = document.getElementById('audio-inicial');
+        const videoPrincipal = document.getElementById('video-fondo');
+        const pantallaCarta = document.getElementById('pantalla-carta');
+
+        // Autoplay de la música
+        function iniciarMusicaClon() {
+            audioInicial.play().catch(err => {
+                const activarAudio = () => { audioInicial.play(); };
+                document.addEventListener('touchstart', activarAudio, { once: true });
+                document.addEventListener('click', activarAudio, { once: true });
+            });
+        }
+        window.addEventListener('DOMContentLoaded', iniciarMusicaClon);
+        window.addEventListener('load', iniciarMusicaClon);
+
+        // Órbita circular fija
+        const radio = 145;
+        palabras.forEach((p, i) => {
+            const el = document.createElement('div');
+            el.className = 'palabra';
+            el.innerText = p;
+            pantallaInicio.appendChild(el);
+            elementos.push({ el, angulo: (i / palabras.length) * Math.PI * 2 });
+        });
+
+        function animarCirculo() {
+            elementos.forEach(item => {
+                item.angulo += 0.006;
+                const x = Math.cos(item.angulo) * radio;
+                const y = Math.sin(item.angulo) * radio;
+                item.el.style.transform = `translate(${x}px, ${y}px)`;
+            });
+            requestAnimationFrame(animarCirculo);
+        }
+        animarCirculo();
+
+        // Transición 1: Inicio -> Video
+        document.getElementById('boton-iniciar').onclick = (e) => {
+            e.stopPropagation(); 
+            audioInicial.pause();
+            document.getElementById('video-bucle-fondo').pause();
+            
+            pantallaInicio.style.display = 'none';
+            document.getElementById('pantalla-video').style.display = 'block';
+            videoPrincipal.play();
+        };
+
+        // --- DETECTOR AUTOMÁTICO DE FINAL DEL VIDEO ---
+        videoPrincipal.addEventListener('ended', () => {
+            // Ocultar pantalla de video
+            document.getElementById('pantalla-video').style.display = 'none';
+            
+            // Mostrar pantalla de la carta con transición suave
+            pantallaCarta.style.display = 'flex';
+            setTimeout(() => {
+                pantallaCarta.style.opacity = '1';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
